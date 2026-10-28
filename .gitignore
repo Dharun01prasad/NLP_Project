@@ -6,6 +6,8 @@ runtime/models/*.joblib
 runtime/reports/
 *.log
 runtime/models/transformer/
+# Fine-tuned model weights are too large for ordinary Git hosting.
+*.safetensors
 training_data*.csv
 training_data*.info.json
 trained*/

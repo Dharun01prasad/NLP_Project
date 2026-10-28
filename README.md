@@ -37,11 +37,16 @@ If a local Python environment already exists but dependencies are missing, run t
 3. Enable **Developer mode**.
 4. Select **Load unpacked** and choose this project's **`extension`** folder, which contains `manifest.json`.
 5. Open a YouTube video at a `/watch?v=...` URL. Scroll to the comments; expand replies if you want them included.
-6. Open the Mozhi extension and select **Analyze loaded comments**.
+6. Open the Mozhi popup and switch **Page indicators** ON. It defaults to OFF and remembers your choice locally.
+7. The popup's **Analyze loaded comments** button still provides the original manual results and CSV export.
 
-The extension only analyzes comments currently present in the page, up to 500 and one million characters per request. Loaded replies are included. It does not claim to scrape every comment or provide a representative video-wide score. YouTube may change its markup; extraction selectors are in `extension/content.js`. Shorts and embedded players are outside the first version's scope. Closing the popup ends the visible session; rerun analysis when reopening it.
+When ON, the extension adds an emoji and toxicity-likelihood percentage beside each rendered comment and reply. Expand an indicator to see its 0–10 likelihood score, model flag, and **Needs context** warning when applicable. The floating summary shows the analyzed count, flagged count and percentage, and average likelihood score. It updates as YouTube renders more comments. The extension waits about 1.4 seconds after page changes and sends at most 100 comments per request. The manual popup analysis covers up to 500 currently loaded comments in 100-comment batches.
 
-Permissions are limited to active-tab scripting and the fixed local backend at `127.0.0.1:8000`. No browsing history or account credentials are collected. Comment text is sent to your local backend when you select Analyze. Training data, explicit review decisions, and model artifacts are stored on your computer; analysis requests are not persisted by the application.
+Only comments currently rendered by YouTube are analyzed; this is never a full-video census. The 0–10 value is predicted toxicity likelihood, not verified abuse severity. The extension runs on YouTube `/watch?v=...` pages. It does not run on Shorts, search, home or unrelated sites. YouTube may change its markup; extraction selectors are in `extension/content.js`.
+
+Switching OFF stops observation and backend requests and removes indicators and the summary from the current page. The popup shows ON or OFF status. If you navigate normally to another watch page and indicators do not appear, open the popup on that page once to grant active-tab access. The extension does not request broad YouTube host access.
+
+If the popup says **Backend unavailable**, start the local backend with `python run.py` and check `http://127.0.0.1:8000/api/status`. If it says **No trained model**, configure a trained model in the local backend and restart it. If no comments appear, scroll to the YouTube comments or expand replies; only rendered DOM comments are visible to the extension. Reload the unpacked extension in `chrome://extensions` after changing its files. Permissions are limited to `activeTab`, `scripting`, `storage` and the fixed local backend at `127.0.0.1:8000`. No API keys are used and comment text is not logged in production.
 
 ## Training and data quality
 
@@ -147,7 +152,7 @@ python -m pytest -q
 node tests/extension.test.cjs
 ```
 
-Tests cover parsing and label mapping, duplicate conflicts, group leakage, augmentation boundaries, training/calibration/inference, API validation, explicit review persistence, held-out protection, label-audit boundaries, and extension extraction/message behavior on fixtures. Browser checks cover the actual local interface at desktop and mobile widths. Live YouTube behavior still needs checking in your installed Chrome extension because YouTube can change its DOM.
+Tests cover parsing and label mapping, duplicate conflicts, group leakage, augmentation boundaries, training/calibration/inference, API validation, explicit review persistence, held-out protection, label-audit boundaries, and extension toggle, observer, batching, navigation, indicator, and backend-error behavior on fixtures. The included browser check covers the local web lab at desktop and mobile widths. Live YouTube behavior should also be checked in the installed Chrome extension because YouTube can change its DOM.
 
 ## Project layout
 

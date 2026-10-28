@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "labels": {
+    "0": "non_toxic",
+    "1": "toxic"
+  },
+  "temperature": 1.371503326462466,
+  "threshold": 0.74,
+  "max_length": 128
+}

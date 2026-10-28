@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+runtime/data/
+runtime/models/*.joblib
+runtime/reports/
+*.log
+runtime/models/transformer/
+training_data*.csv
+training_data*.info.json
+trained*/
+colab/mozhi_colab.zip

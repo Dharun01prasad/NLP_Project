@@ -1,0 +1,889 @@
+{
+  "created_at": "2026-10-25T11:31:38.827095+00:00",
+  "dataset": {
+    "input_rows": 66363,
+    "usable_rows": 66227,
+    "excluded": {
+      "conflicting_duplicate_rows": 4,
+      "duplicate_rows": 132
+    },
+    "class_counts": {
+      "non_toxic": 35528,
+      "toxic": 30699
+    },
+    "name": "DravidianCodeMix + Davidson (local files)",
+    "sources": [
+      {
+        "file": "tamil_offensive_full_train.csv",
+        "sha256": "dd76f6cf48c49143ac0f83d901a0ae9d3f865c8ea37668ae2823f560585440d1"
+      },
+      {
+        "file": "tamil_offensive_full_dev.csv",
+        "sha256": "d533cb5a9e5c3620d709630f554a9d1ce1c9ce27e1cbcd0c7b5ac31857dbb63e"
+      },
+      {
+        "file": "tamil_offensive_full_test.csv",
+        "sha256": "16d56f67b1c2a856cacd3bf823feaff8800615b66ce05475cd00b9296d39dc3a"
+      },
+      {
+        "file": "labeled_data.csv",
+        "sha256": "fcb8bc7c68120ae4af04a5b9acd58585513ede11e1548ebf36a5c2040b6f6281"
+      }
+    ],
+    "split": {
+      "strategy": "Official splits; overlapping normalized variant groups removed from train/dev",
+      "overlap_rows_excluded": 47,
+      "counts": {
+        "train": {
+          "rows": 47953,
+          "toxic": 20467
+        },
+        "calibration": {
+          "rows": 4549,
+          "toxic": 2553
+        },
+        "validation": {
+          "rows": 4549,
+          "toxic": 2552
+        },
+        "test": {
+          "rows": 9129,
+          "toxic": 5127
+        }
+      }
+    },
+    "diagnostic_overlap_removed": 0,
+    "labels_verified": false,
+    "saved_rows": 66180,
+    "source_counts": {
+      "davidson": {
+        "0": 4111,
+        "1": 20439
+      },
+      "dravidian_codemix": {
+        "0": 31370,
+        "1": 10260
+      }
+    },
+    "limitations": [
+      "Davidson English is heavily skewed toward offensive tweets and has documented bias.",
+      "Add reviewed ordinary English conversation and context examples before deployment.",
+      "Language metadata is corpus-level; English vs romanized Tamil within DravidianCodeMix is not identified.",
+      "TamHateX and sentiment datasets are not merged because their label policies differ."
+    ]
+  },
+  "dataset_fingerprint": "d68f3616127a36a48f4caf660f303496c45d813dd4f053a69eac2dd2cb18cb36",
+  "cleaning": {
+    "input_rows": 66180,
+    "usable_rows": 66180,
+    "excluded": {
+      "conflicting_duplicate_rows": 0,
+      "duplicate_rows": 0
+    },
+    "class_counts": {
+      "non_toxic": 35481,
+      "toxic": 30699
+    },
+    "diagnostic_overlap_removed": 0
+  },
+  "split": {
+    "strategy": "Official splits; overlapping normalized variant groups removed from train/dev",
+    "overlap_rows_excluded": 0,
+    "counts": {
+      "train": {
+        "rows": 47953,
+        "toxic": 20467
+      },
+      "calibration": {
+        "rows": 4549,
+        "toxic": 2553
+      },
+      "validation": {
+        "rows": 4549,
+        "toxic": 2552
+      },
+      "test": {
+        "rows": 9129,
+        "toxic": 5127
+      }
+    }
+  },
+  "selected_model": "Fine-tuned google/muril-base-cased",
+  "selected_index": 0,
+  "backend": "transformer",
+  "base_model": "google/muril-base-cased",
+  "best_epoch": 2,
+  "selection_rule": "Highest mean validation macro-F1 across sources (overall if source absent)",
+  "threshold_rule": "balanced",
+  "temperature": 1.371503326462466,
+  "max_length": 128,
+  "human_validated": false,
+  "score_meaning": "Predicted offensive-language likelihood; not severity or a hate-specific label",
+  "training": {
+    "epochs": 3,
+    "batch_size": 2,
+    "accumulation": 16,
+    "learning_rate": 2e-05,
+    "seed": 42,
+    "device": "cuda",
+    "sampling": "Equal source/class strata with replacement; training only"
+  },
+  "truncated_rows": {
+    "train": 137,
+    "calibration": 8,
+    "validation": 6,
+    "test": 25
+  },
+  "epochs": [
+    {
+      "epoch": 1,
+      "training_loss": 0.4186642855963894,
+      "selection_macro_f1": 0.8366918586891585,
+      "validation": {
+        "overall": {
+          "macro_f1": 0.8902312487432134,
+          "precision": 0.9248244527054936,
+          "recall": 0.8773510971786834,
+          "false_positive_rate": 0.09113670505758638,
+          "brier_score": 0.10025546699762344,
+          "roc_auc": 0.9555436210742446,
+          "average_precision": 0.9711235082203287,
+          "confusion": {
+            "true_negative": 1815,
+            "false_positive": 182,
+            "false_negative": 313,
+            "true_positive": 2239
+          },
+          "count": 4549
+        },
+        "language": {
+          "english": {
+            "macro_f1": 0.905546878588819,
+            "precision": 0.9937597503900156,
+            "recall": 0.9390663390663391,
+            "false_positive_rate": 0.03125,
+            "brier_score": 0.036387261003255844,
+            "roc_auc": 0.9824823402948402,
+            "average_precision": 0.9966303252277999,
+            "confusion": {
+              "true_negative": 372,
+              "false_positive": 12,
+              "false_negative": 124,
+              "true_positive": 1911
+            },
+            "count": 2419
+          },
+          "tamil_english_corpus": {
+            "macro_f1": 0.767836838789498,
+            "precision": 0.6586345381526104,
+            "recall": 0.6344294003868471,
+            "false_positive_rate": 0.10539367637941724,
+            "brier_score": 0.1727893352508545,
+            "roc_auc": 0.8772653524734357,
+            "average_precision": 0.6923806939353615,
+            "confusion": {
+              "true_negative": 1443,
+              "false_positive": 170,
+              "false_negative": 189,
+              "true_positive": 328
+            },
+            "count": 2130
+          }
+        },
+        "source": {
+          "davidson": {
+            "macro_f1": 0.905546878588819,
+            "precision": 0.9937597503900156,
+            "recall": 0.9390663390663391,
+            "false_positive_rate": 0.03125,
+            "brier_score": 0.036387261003255844,
+            "roc_auc": 0.9824823402948402,
+            "average_precision": 0.9966303252277999,
+            "confusion": {
+              "true_negative": 372,
+              "false_positive": 12,
+              "false_negative": 124,
+              "true_positive": 1911
+            },
+            "count": 2419
+          },
+          "dravidian_codemix": {
+            "macro_f1": 0.767836838789498,
+            "precision": 0.6586345381526104,
+            "recall": 0.6344294003868471,
+            "false_positive_rate": 0.10539367637941724,
+            "brier_score": 0.1727893352508545,
+            "roc_auc": 0.8772653524734357,
+            "average_precision": 0.6923806939353615,
+            "confusion": {
+              "true_negative": 1443,
+              "false_positive": 170,
+              "false_negative": 189,
+              "true_positive": 328
+            },
+            "count": 2130
+          }
+        },
+        "script": {
+          "latin_only": {
+            "macro_f1": 0.8918427977251506,
+            "precision": 0.9323181049069373,
+            "recall": 0.8883514711809755,
+            "false_positive_rate": 0.0955794504181601,
+            "brier_score": 0.09445089846849442,
+            "roc_auc": 0.9577816494967487,
+            "average_precision": 0.9758532083806479,
+            "confusion": {
+              "true_negative": 1514,
+              "false_positive": 160,
+              "false_negative": 277,
+              "true_positive": 2204
+            },
+            "count": 4155
+          },
+          "tamil_and_latin": {
+            "macro_f1": 0.7595238095238095,
+            "precision": 0.7647058823529411,
+            "recall": 0.52,
+            "false_positive_rate": 0.05263157894736842,
+            "brier_score": 0.16105671226978302,
+            "roc_auc": 0.8821052631578947,
+            "average_precision": 0.7258932700449443,
+            "confusion": {
+              "true_negative": 72,
+              "false_positive": 4,
+              "false_negative": 12,
+              "true_positive": 13
+            },
+            "count": 101
+          },
+          "tamil_script": {
+            "macro_f1": 0.7138139534883721,
+            "precision": 0.55,
+            "recall": 0.4782608695652174,
+            "false_positive_rate": 0.0728744939271255,
+            "brier_score": 0.16161048412322998,
+            "roc_auc": 0.8668368245027284,
+            "average_precision": 0.530839783858355,
+            "confusion": {
+              "true_negative": 229,
+              "false_positive": 18,
+              "false_negative": 24,
+              "true_positive": 22
+            },
+            "count": 293
+          }
+        }
+      },
+      "threshold": 0.82
+    },
+    {
+      "epoch": 2,
+      "training_loss": 0.2383623065495852,
+      "selection_macro_f1": 0.850784832854381,
+      "validation": {
+        "overall": {
+          "macro_f1": 0.8980318398142546,
+          "precision": 0.9174641148325359,
+          "recall": 0.9016457680250783,
+          "false_positive_rate": 0.10365548322483725,
+          "brier_score": 0.08873458206653595,
+          "roc_auc": 0.9613738790003187,
+          "average_precision": 0.9720725671006909,
+          "confusion": {
+            "true_negative": 1790,
+            "false_positive": 207,
+            "false_negative": 251,
+            "true_positive": 2301
+          },
+          "count": 4549
+        },
+        "language": {
+          "english": {
+            "macro_f1": 0.9259710194323898,
+            "precision": 0.9903602232369355,
+            "recall": 0.9592137592137592,
+            "false_positive_rate": 0.049479166666666664,
+            "brier_score": 0.032963886857032776,
+            "roc_auc": 0.9786509520884522,
+            "average_precision": 0.9930790839924877,
+            "confusion": {
+              "true_negative": 365,
+              "false_positive": 19,
+              "false_negative": 83,
+              "true_positive": 1952
+            },
+            "count": 2419
+          },
+          "tamil_english_corpus": {
+            "macro_f1": 0.7755986462763722,
+            "precision": 0.6499068901303539,
+            "recall": 0.6750483558994197,
+            "false_positive_rate": 0.11655300681959083,
+            "brier_score": 0.15207231044769287,
+            "roc_auc": 0.8818689060474554,
+            "average_precision": 0.7133907115562494,
+            "confusion": {
+              "true_negative": 1425,
+              "false_positive": 188,
+              "false_negative": 168,
+              "true_positive": 349
+            },
+            "count": 2130
+          }
+        },
+        "source": {
+          "davidson": {
+            "macro_f1": 0.9259710194323898,
+            "precision": 0.9903602232369355,
+            "recall": 0.9592137592137592,
+            "false_positive_rate": 0.049479166666666664,
+            "brier_score": 0.032963886857032776,
+            "roc_auc": 0.9786509520884522,
+            "average_precision": 0.9930790839924877,
+            "confusion": {
+              "true_negative": 365,
+              "false_positive": 19,
+              "false_negative": 83,
+              "true_positive": 1952
+            },
+            "count": 2419
+          },
+          "dravidian_codemix": {
+            "macro_f1": 0.7755986462763722,
+            "precision": 0.6499068901303539,
+            "recall": 0.6750483558994197,
+            "false_positive_rate": 0.11655300681959083,
+            "brier_score": 0.15207231044769287,
+            "roc_auc": 0.8818689060474554,
+            "average_precision": 0.7133907115562494,
+            "confusion": {
+              "true_negative": 1425,
+              "false_positive": 188,
+              "false_negative": 168,
+              "true_positive": 349
+            },
+            "count": 2130
+          }
+        },
+        "script": {
+          "latin_only": {
+            "macro_f1": 0.9021411117120653,
+            "precision": 0.928923582580115,
+            "recall": 0.9113260781942765,
+            "false_positive_rate": 0.1033452807646356,
+            "brier_score": 0.08366886526346207,
+            "roc_auc": 0.9630977989470273,
+            "average_precision": 0.9761221410189295,
+            "confusion": {
+              "true_negative": 1501,
+              "false_positive": 173,
+              "false_negative": 220,
+              "true_positive": 2261
+            },
+            "count": 4155
+          },
+          "tamil_and_latin": {
+            "macro_f1": 0.7748049052396879,
+            "precision": 0.7142857142857143,
+            "recall": 0.6,
+            "false_positive_rate": 0.07894736842105263,
+            "brier_score": 0.13269606232643127,
+            "roc_auc": 0.8999999999999999,
+            "average_precision": 0.780686254196151,
+            "confusion": {
+              "true_negative": 70,
+              "false_positive": 6,
+              "false_negative": 10,
+              "true_positive": 15
+            },
+            "count": 101
+          },
+          "tamil_script": {
+            "macro_f1": 0.7022172443117002,
+            "precision": 0.4716981132075472,
+            "recall": 0.5434782608695652,
+            "false_positive_rate": 0.11336032388663968,
+            "brier_score": 0.14541716873645782,
+            "roc_auc": 0.8714134835416301,
+            "average_precision": 0.5706844639987665,
+            "confusion": {
+              "true_negative": 219,
+              "false_positive": 28,
+              "false_negative": 21,
+              "true_positive": 25
+            },
+            "count": 293
+          }
+        }
+      },
+      "threshold": 0.8099999999999999
+    },
+    {
+      "epoch": 3,
+      "training_loss": 0.19888072839773452,
+      "selection_macro_f1": 0.8505105365906096,
+      "validation": {
+        "overall": {
+          "macro_f1": 0.9030606808666227,
+          "precision": 0.9353643474680938,
+          "recall": 0.890282131661442,
+          "false_positive_rate": 0.0786179268903355,
+          "brier_score": 0.0834524855017662,
+          "roc_auc": 0.9617336467083071,
+          "average_precision": 0.9724043903592773,
+          "confusion": {
+            "true_negative": 1840,
+            "false_positive": 157,
+            "false_negative": 280,
+            "true_positive": 2272
+          },
+          "count": 4549
+        },
+        "language": {
+          "english": {
+            "macro_f1": 0.9245971591949388,
+            "precision": 0.9878787878787879,
+            "recall": 0.9611793611793612,
+            "false_positive_rate": 0.0625,
+            "brier_score": 0.035401299595832825,
+            "roc_auc": 0.9784148495085996,
+            "average_precision": 0.9927453626370553,
+            "confusion": {
+              "true_negative": 360,
+              "false_positive": 24,
+              "false_negative": 79,
+              "true_positive": 1956
+            },
+            "count": 2419
+          },
+          "tamil_english_corpus": {
+            "macro_f1": 0.7764239139862803,
+            "precision": 0.7037861915367484,
+            "recall": 0.6112185686653772,
+            "false_positive_rate": 0.08245505269683819,
+            "brier_score": 0.13802330195903778,
+            "roc_auc": 0.8832827090335893,
+            "average_precision": 0.7207480378492598,
+            "confusion": {
+              "true_negative": 1480,
+              "false_positive": 133,
+              "false_negative": 201,
+              "true_positive": 316
+            },
+            "count": 2130
+          }
+        },
+        "source": {
+          "davidson": {
+            "macro_f1": 0.9245971591949388,
+            "precision": 0.9878787878787879,
+            "recall": 0.9611793611793612,
+            "false_positive_rate": 0.0625,
+            "brier_score": 0.035401299595832825,
+            "roc_auc": 0.9784148495085996,
+            "average_precision": 0.9927453626370553,
+            "confusion": {
+              "true_negative": 360,
+              "false_positive": 24,
+              "false_negative": 79,
+              "true_positive": 1956
+            },
+            "count": 2419
+          },
+          "dravidian_codemix": {
+            "macro_f1": 0.7764239139862803,
+            "precision": 0.7037861915367484,
+            "recall": 0.6112185686653772,
+            "false_positive_rate": 0.08245505269683819,
+            "brier_score": 0.13802330195903778,
+            "roc_auc": 0.8832827090335893,
+            "average_precision": 0.7207480378492598,
+            "confusion": {
+              "true_negative": 1480,
+              "false_positive": 133,
+              "false_negative": 201,
+              "true_positive": 316
+            },
+            "count": 2130
+          }
+        },
+        "script": {
+          "latin_only": {
+            "macro_f1": 0.9071263262569231,
+            "precision": 0.943929173693086,
+            "recall": 0.9024586860137042,
+            "false_positive_rate": 0.07945041816009558,
+            "brier_score": 0.07826153934001923,
+            "roc_auc": 0.9634920738111439,
+            "average_precision": 0.9764085795961651,
+            "confusion": {
+              "true_negative": 1541,
+              "false_positive": 133,
+              "false_negative": 242,
+              "true_positive": 2239
+            },
+            "count": 4155
+          },
+          "tamil_and_latin": {
+            "macro_f1": 0.7934560327198363,
+            "precision": 0.9285714285714286,
+            "recall": 0.52,
+            "false_positive_rate": 0.013157894736842105,
+            "brier_score": 0.12228047102689743,
+            "roc_auc": 0.9052631578947369,
+            "average_precision": 0.7930267370717256,
+            "confusion": {
+              "true_negative": 75,
+              "false_positive": 1,
+              "false_negative": 12,
+              "true_positive": 13
+            },
+            "count": 101
+          },
+          "tamil_script": {
+            "macro_f1": 0.6754233264757081,
+            "precision": 0.46511627906976744,
+            "recall": 0.43478260869565216,
+            "false_positive_rate": 0.0931174089068826,
+            "brier_score": 0.1436804234981537,
+            "roc_auc": 0.871501496215455,
+            "average_precision": 0.5531905738752895,
+            "confusion": {
+              "true_negative": 224,
+              "false_positive": 23,
+              "false_negative": 26,
+              "true_positive": 20
+            },
+            "count": 293
+          }
+        }
+      },
+      "threshold": 0.83
+    }
+  ],
+  "validation_slices": {
+    "overall": {
+      "macro_f1": 0.8980318398142546,
+      "precision": 0.9174641148325359,
+      "recall": 0.9016457680250783,
+      "false_positive_rate": 0.10365548322483725,
+      "brier_score": 0.08392877131700516,
+      "roc_auc": 0.9613736827812253,
+      "average_precision": 0.9720768959020623,
+      "confusion": {
+        "true_negative": 1790,
+        "false_positive": 207,
+        "false_negative": 251,
+        "true_positive": 2301
+      },
+      "count": 4549
+    },
+    "language": {
+      "english": {
+        "macro_f1": 0.9259710194323898,
+        "precision": 0.9903602232369355,
+        "recall": 0.9592137592137592,
+        "false_positive_rate": 0.049479166666666664,
+        "brier_score": 0.031918782740831375,
+        "roc_auc": 0.9786496723996726,
+        "average_precision": 0.9930844883457248,
+        "confusion": {
+          "true_negative": 365,
+          "false_positive": 19,
+          "false_negative": 83,
+          "true_positive": 1952
+        },
+        "count": 2419
+      },
+      "tamil_english_corpus": {
+        "macro_f1": 0.7755986462763722,
+        "precision": 0.6499068901303539,
+        "recall": 0.6750483558994197,
+        "false_positive_rate": 0.11655300681959083,
+        "brier_score": 0.14299550652503967,
+        "roc_auc": 0.8818689060474554,
+        "average_precision": 0.7133907115562494,
+        "confusion": {
+          "true_negative": 1425,
+          "false_positive": 188,
+          "false_negative": 168,
+          "true_positive": 349
+        },
+        "count": 2130
+      }
+    },
+    "source": {
+      "davidson": {
+        "macro_f1": 0.9259710194323898,
+        "precision": 0.9903602232369355,
+        "recall": 0.9592137592137592,
+        "false_positive_rate": 0.049479166666666664,
+        "brier_score": 0.031918782740831375,
+        "roc_auc": 0.9786496723996726,
+        "average_precision": 0.9930844883457248,
+        "confusion": {
+          "true_negative": 365,
+          "false_positive": 19,
+          "false_negative": 83,
+          "true_positive": 1952
+        },
+        "count": 2419
+      },
+      "dravidian_codemix": {
+        "macro_f1": 0.7755986462763722,
+        "precision": 0.6499068901303539,
+        "recall": 0.6750483558994197,
+        "false_positive_rate": 0.11655300681959083,
+        "brier_score": 0.14299550652503967,
+        "roc_auc": 0.8818689060474554,
+        "average_precision": 0.7133907115562494,
+        "confusion": {
+          "true_negative": 1425,
+          "false_positive": 188,
+          "false_negative": 168,
+          "true_positive": 349
+        },
+        "count": 2130
+      }
+    },
+    "script": {
+      "latin_only": {
+        "macro_f1": 0.9021411117120653,
+        "precision": 0.928923582580115,
+        "recall": 0.9113260781942765,
+        "false_positive_rate": 0.1033452807646356,
+        "brier_score": 0.07943407446146011,
+        "roc_auc": 0.9630975581684843,
+        "average_precision": 0.9761265936997436,
+        "confusion": {
+          "true_negative": 1501,
+          "false_positive": 173,
+          "false_negative": 220,
+          "true_positive": 2261
+        },
+        "count": 4155
+      },
+      "tamil_and_latin": {
+        "macro_f1": 0.7748049052396879,
+        "precision": 0.7142857142857143,
+        "recall": 0.6,
+        "false_positive_rate": 0.07894736842105263,
+        "brier_score": 0.12553761899471283,
+        "roc_auc": 0.8999999999999999,
+        "average_precision": 0.780686254196151,
+        "confusion": {
+          "true_negative": 70,
+          "false_positive": 6,
+          "false_negative": 10,
+          "true_positive": 15
+        },
+        "count": 101
+      },
+      "tamil_script": {
+        "macro_f1": 0.7022172443117002,
+        "precision": 0.4716981132075472,
+        "recall": 0.5434782608695652,
+        "false_positive_rate": 0.11336032388663968,
+        "brier_score": 0.133324533700943,
+        "roc_auc": 0.8714134835416301,
+        "average_precision": 0.5706844639987665,
+        "confusion": {
+          "true_negative": 219,
+          "false_positive": 28,
+          "false_negative": 21,
+          "true_positive": 25
+        },
+        "count": 293
+      }
+    }
+  },
+  "test_slices": {
+    "overall": {
+      "macro_f1": 0.8961740390377191,
+      "precision": 0.9139020537124802,
+      "recall": 0.9026721279500682,
+      "false_positive_rate": 0.1089455272363818,
+      "brier_score": 0.0833868756890297,
+      "roc_auc": 0.9623870530114308,
+      "average_precision": 0.9744708141704344,
+      "confusion": {
+        "true_negative": 3566,
+        "false_positive": 436,
+        "false_negative": 499,
+        "true_positive": 4628
+      },
+      "count": 9129
+    },
+    "language": {
+      "english": {
+        "macro_f1": 0.9244331431600115,
+        "precision": 0.9878940731399748,
+        "recall": 0.9581702544031311,
+        "false_positive_rate": 0.058394160583941604,
+        "brier_score": 0.03407556191086769,
+        "roc_auc": 0.9832988427347741,
+        "average_precision": 0.9957501173319669,
+        "confusion": {
+          "true_negative": 774,
+          "false_positive": 48,
+          "false_negative": 171,
+          "true_positive": 3917
+        },
+        "count": 4910
+      },
+      "tamil_english_corpus": {
+        "macro_f1": 0.7757283917620681,
+        "precision": 0.6469517743403094,
+        "recall": 0.6843118383060636,
+        "false_positive_rate": 0.1220125786163522,
+        "brier_score": 0.14077456295490265,
+        "roc_auc": 0.8870566764123704,
+        "average_precision": 0.7214779655639827,
+        "confusion": {
+          "true_negative": 2792,
+          "false_positive": 388,
+          "false_negative": 328,
+          "true_positive": 711
+        },
+        "count": 4219
+      }
+    },
+    "source": {
+      "davidson": {
+        "macro_f1": 0.9244331431600115,
+        "precision": 0.9878940731399748,
+        "recall": 0.9581702544031311,
+        "false_positive_rate": 0.058394160583941604,
+        "brier_score": 0.03407556191086769,
+        "roc_auc": 0.9832988427347741,
+        "average_precision": 0.9957501173319669,
+        "confusion": {
+          "true_negative": 774,
+          "false_positive": 48,
+          "false_negative": 171,
+          "true_positive": 3917
+        },
+        "count": 4910
+      },
+      "dravidian_codemix": {
+        "macro_f1": 0.7757283917620681,
+        "precision": 0.6469517743403094,
+        "recall": 0.6843118383060636,
+        "false_positive_rate": 0.1220125786163522,
+        "brier_score": 0.14077456295490265,
+        "roc_auc": 0.8870566764123704,
+        "average_precision": 0.7214779655639827,
+        "confusion": {
+          "true_negative": 2792,
+          "false_positive": 388,
+          "false_negative": 328,
+          "true_positive": 711
+        },
+        "count": 4219
+      }
+    },
+    "script": {
+      "latin_only": {
+        "macro_f1": 0.9009236881774627,
+        "precision": 0.9241590214067278,
+        "recall": 0.9144643937865644,
+        "false_positive_rate": 0.11061552185548618,
+        "brier_score": 0.07815904170274734,
+        "roc_auc": 0.9649681882086629,
+        "average_precision": 0.9789657048900079,
+        "confusion": {
+          "true_negative": 2991,
+          "false_positive": 372,
+          "false_negative": 424,
+          "true_positive": 4533
+        },
+        "count": 8320
+      },
+      "tamil_and_latin": {
+        "macro_f1": 0.6849765408062303,
+        "precision": 0.5434782608695652,
+        "recall": 0.49019607843137253,
+        "false_positive_rate": 0.1320754716981132,
+        "brier_score": 0.1658467799425125,
+        "roc_auc": 0.834011592058207,
+        "average_precision": 0.565663313729719,
+        "confusion": {
+          "true_negative": 138,
+          "false_positive": 21,
+          "false_negative": 26,
+          "true_positive": 25
+        },
+        "count": 210
+      },
+      "tamil_script": {
+        "macro_f1": 0.7541050903119868,
+        "precision": 0.6194690265486725,
+        "recall": 0.5882352941176471,
+        "false_positive_rate": 0.08958333333333333,
+        "brier_score": 0.1270913928747177,
+        "roc_auc": 0.8901435574229691,
+        "average_precision": 0.6346945869630543,
+        "confusion": {
+          "true_negative": 437,
+          "false_positive": 43,
+          "false_negative": 49,
+          "true_positive": 70
+        },
+        "count": 599
+      }
+    }
+  },
+  "experiments": [
+    {
+      "name": "Fine-tuned google/muril-base-cased",
+      "kind": "transformer",
+      "augmented": false,
+      "threshold": 0.74,
+      "validation": {
+        "macro_f1": 0.8980318398142546,
+        "precision": 0.9174641148325359,
+        "recall": 0.9016457680250783,
+        "false_positive_rate": 0.10365548322483725,
+        "brier_score": 0.08392877131700516,
+        "roc_auc": 0.9613736827812253,
+        "average_precision": 0.9720768959020623,
+        "confusion": {
+          "true_negative": 1790,
+          "false_positive": 207,
+          "false_negative": 251,
+          "true_positive": 2301
+        },
+        "count": 4549
+      },
+      "test": {
+        "macro_f1": 0.8961740390377191,
+        "precision": 0.9139020537124802,
+        "recall": 0.9026721279500682,
+        "false_positive_rate": 0.1089455272363818,
+        "brier_score": 0.0833868756890297,
+        "roc_auc": 0.9623870530114308,
+        "average_precision": 0.9744708141704344,
+        "confusion": {
+          "true_negative": 3566,
+          "false_positive": 436,
+          "false_negative": 499,
+          "true_positive": 4628
+        },
+        "count": 9129
+      },
+      "robustness": {}
+    }
+  ],
+  "limitations": [
+    "Source labels and diagnostic labels require independent human review.",
+    "Source-domain calibration may not transfer to real conversations.",
+    "Only the first max_length tokens are classified; longer inputs require review.",
+    "Latin script is not a reliable language identifier. Validate English and Thanglish separately.",
+    "Binary offensive language is not equivalent to identity-based hate speech."
+  ],
+  "versions": {
+    "torch": "2.13.0+cu126",
+    "transformers": "4.57.6"
+  }
+}

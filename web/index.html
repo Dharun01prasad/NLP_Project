@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mozhi — Tanglish toxicity lab</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brandmark">ம</span><span>mozhi<span class="brand-sub">LANGUAGE IN CONTEXT</span></span></a>
+    <div class="nav-caption">YOUR WORKSPACE</div>
+    <nav aria-label="Workspace">
+      <button class="nav-item active" data-page="analyze"><span class="nav-icon">◈</span> Comment analysis</button>
+      <button class="nav-item" data-page="dataset"><span class="nav-icon">▤</span> Dataset studio</button>
+      <button class="nav-item" data-page="experiments"><span class="nav-icon">⌁</span> Experiments</button>
+      <button class="nav-item" data-page="review"><span class="nav-icon">✓</span> Label review <span id="queue-badge" class="nav-badge">0</span></button>
+    </nav>
+    <div class="sidebar-project"><span class="eyebrow">THE PROJECT</span><h3>Small details.<br>Better understanding.</h3><p>Direct Tanglish classification.<br>Built with traditional NLP.</p><span class="project-pill">TF-IDF + Logistic Regression</span></div>
+    <div class="sidebar-footer"><span class="connection-dot" id="connection-dot"></span><span id="connection-text">Connecting to local backend</span><span class="version">v1.0</span></div>
+  </aside>
+  <main>
+    <header class="topbar"><span>RESEARCH WORKSPACE <span class="slash">/</span> <span id="breadcrumb">COMMENT ANALYSIS</span></span><div class="local-badge"><span class="connection-dot"></span> Local inference</div></header>
+    <div class="main-content">
+      <div id="error-banner" class="notice error hidden" role="alert"></div>
+      <div id="job-banner" class="notice job hidden" role="status"><span class="spinner"></span><span id="job-text"></span></div>
+      <section id="page-analyze" class="page">
+        <div class="page-heading"><div><div class="eyebrow green">WORDS MATTER. CONTEXT MATTERS MORE.</div><h1>Understand the conversation<span class="green">.</span></h1><p class="subtitle">A closer look at toxicity in Tamil-English comment sections.</p></div><span id="model-pill" class="status-pill">Checking model…</span></div>
+        <div class="notice research"><span class="notice-icon">i</span><span><strong>Research baseline.</strong> Published training labels are unverified. Scores estimate offensive-language likelihood; human judgment still matters.</span></div>
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-label">COMMENTS ANALYZED <span>↗</span></div><div class="stat-value" id="stat-count">—</div><div class="stat-note">In this analyzed sample</div></div>
+          <div class="stat"><div class="stat-label">FLAGGED COMMENTS <span class="orange">◉</span></div><div class="stat-value" id="stat-flagged">—</div><div class="stat-note" id="stat-flagged-note">Above the model threshold</div></div>
+          <div class="stat"><div class="stat-label">AVERAGE LIKELIHOOD <span>⌁</span></div><div class="stat-value" id="stat-average">—</div><div class="stat-note">0–10 scale · not abuse severity</div></div>
+          <div class="stat"><div class="stat-label">NEEDS CONTEXT <span class="purple">◇</span></div><div class="stat-value" id="stat-uncertain">—</div><div class="stat-note">Predictions near the threshold</div></div>
+        </div>
+        <div class="analysis-grid">
+          <section class="card input-card"><div class="card-heading"><div><h2>Add your comments</h2><p>One comment per line. Up to 500 at a time.</p></div><span class="mini-icon">↙</span></div>
+            <label class="field-label" for="comments">COMMENT TEXT <span>Tamil · Tanglish · English</span></label>
+            <textarea id="comments" spellcheck="false" placeholder="Indha video romba helpful ah irukku!&#10;The explanation could have been better.&#10;Add comments to explore the model’s predictions…"></textarea>
+            <div class="input-meta"><span id="input-count">0 comments</span><button id="clear-comments" class="text-button">Clear</button></div>
+            <div class="sample-row"><span>Try a starting point</span><button id="load-examples" class="sample-chip">Load examples <span>↗</span></button></div>
+            <button id="analyze-button" class="primary wide">Analyze comments <span>↗</span></button>
+            <p class="privacy-note"><span>⌂</span> Classification runs on your local Python backend. No comments are sent to an external API.</p>
+          </section>
+          <section class="card results-card"><div class="card-heading"><div><h2>Comment insights <span id="results-count" class="count-pill">0</span></h2><p>Predictions, with room for context.</p></div><button id="export-results" class="icon-button" title="Export predictions as CSV" disabled>↓ <span>Export</span></button></div>
+            <div class="results-toolbar"><div class="segmented" aria-label="Result filters"><button class="active" data-filter="all">All comments</button><button data-filter="toxic">Flagged</button><button data-filter="uncertain">Needs context</button></div><span class="muted" id="threshold-note"></span></div>
+            <div id="results" aria-live="polite"><div class="empty-state"><div class="empty-graphic"><span>“</span><i></i><b></b></div><h3>A little clarity starts here.</h3><p>Add a few comments and run an analysis.<br>Your results will appear in this space.</p><div class="language-pills"><span>தமிழ்</span><span>Tanglish</span><span>English</span></div></div></div>
+          </section>
+        </div>
+        <div class="bottom-note"><span>↳</span> A flag is a model prediction. Slang, sarcasm, quoted abuse, and missing context can lead to mistakes.</div>
+      </section>
+      <section id="page-dataset" class="page hidden">
+        <div class="page-heading"><div><div class="eyebrow green">BETTER DATA, BETTER EXPERIMENTS</div><h1>Dataset studio<span class="green">.</span></h1><p class="subtitle">Load labeled comments and inspect what actually goes into training.</p></div><a class="secondary" href="/api/export/dataset" download>Export dataset ↓</a></div>
+        <div class="notice research"><span class="notice-icon">i</span><span>Only explicit offensive-language labels are mapped automatically. Negative sentiment is not treated as toxicity.</span></div>
+        <div class="two-columns">
+          <section class="card padded"><span class="eyebrow">01 / ORIGINAL RESEARCH DATA</span><h2>Start with DravidianCodeMix</h2><p class="body-copy">Download the original Tamil offensive-language splits from Zenodo. The importer checks the archive checksum, excludes other-language labels, and removes conflicting duplicates and split overlap.</p><div class="source-box"><strong>Tamil-English · YouTube comments</strong><span>Published labels · not human verified in this project</span><a href="https://zenodo.org/records/4750858" target="_blank" rel="noopener">View the original source ↗</a></div><button id="fetch-dataset" class="primary">Load research dataset <span>↓</span></button><p class="muted small">Downloads about 10.8 MB. Replaces the current dataset and review queue; the current trained model stays available.</p></section>
+          <section class="card padded"><span class="eyebrow">02 / YOUR OWN LABELED COMMENTS</span><h2>Import a CSV or TSV</h2><p class="body-copy">Use a header with a comment column and a label column. Labels can be <code>0</code> (non-toxic) and <code>1</code> (toxic). An optional <code>split</code> column accepts train/dev/test.</p><label class="upload-zone" for="dataset-file"><span class="upload-symbol">↑</span><strong id="file-name">Choose a labeled dataset</strong><span>CSV / TSV · UTF-8 · max 20 MB</span><input type="file" id="dataset-file" accept=".csv,.tsv,.txt"></label><div class="field-row"><label>Text column<input id="text-column" value="comment"></label><label>Label column<input id="label-column" value="label"></label></div><details><summary>Custom label mapping</summary><p class="muted small">JSON object: values must be 0, 1, or null to exclude.</p><input id="label-mapping" placeholder='{"clean":0,"abusive":1,"other":null}'></details><button id="import-dataset" class="secondary wide">Import and validate <span>↗</span></button></section>
+        </div>
+        <section class="card padded dataset-overview"><div class="card-heading plain"><div><h2>Current dataset</h2><p id="dataset-name">No dataset loaded</p></div><span class="status-pill" id="dataset-state">Awaiting data</span></div><div id="dataset-details" class="body-copy">The packaged model can analyze comments immediately. Load data here to retrain or audit labels.</div></section>
+      </section>
+      <section id="page-experiments" class="page hidden">
+        <div class="page-heading"><div><div class="eyebrow green">MEASURE BEFORE YOU CLAIM</div><h1>Experiments<span class="green">.</span></h1><p class="subtitle">Compare features, label quality, and resilience to spelling changes.</p></div><a class="secondary" href="/api/export/report" download>Download report ↓</a></div>
+        <div class="card padded training-controls"><div><h2>Run a controlled comparison</h2><p class="body-copy">Fit word and character models. Calibrate on separate data, choose thresholds and the model on validation, then evaluate on held-out test comments.</p></div><div class="training-actions"><label class="check-label"><input type="checkbox" id="augment" checked> Include training with spelling augmentation</label><button id="train-models" class="primary">Train & compare <span>↗</span></button></div></div>
+        <div class="notice research"><span class="notice-icon">i</span><span>These metrics measure agreement with dataset labels. A clean, manually verified test set is still required to establish real-world quality.</span></div>
+        <section class="card"><div class="card-heading"><div><h2>Model comparison</h2><p id="experiment-meta">No experiments yet</p></div><span class="tiny-tag">NO GENERATIVE LLM</span></div><div id="experiment-table" class="table-wrap"><div class="empty-small">Load a dataset, then train your first comparison.</div></div></section>
+        <div class="two-columns below"><section class="card padded"><h2>How the data is separated</h2><div id="split-details" class="body-copy">Training → calibration → validation → test. Original comments and their obvious variants stay in one group.</div></section><section class="card padded"><h2>Spelling robustness</h2><div id="robustness-details" class="body-copy">Repeated letters and inserted punctuation are tested on held-out comments. These synthetic tests are proxies; they do not establish understanding of slang or sarcasm.</div></section></div>
+      </section>
+      <section id="page-review" class="page hidden">
+        <div class="page-heading"><div><div class="eyebrow green">A SMALL REVIEW CAN MAKE A DIFFERENCE</div><h1>Label review<span class="green">.</span></h1><p class="subtitle">Focus your effort on potentially mislabeled training comments.</p></div><button id="audit-labels" class="primary">Find suspicious labels <span>↗</span></button></div>
+        <div class="notice research"><span class="notice-icon">i</span><span>Cleanlab ranks issues from three out-of-fold model predictions. Suggestions can be wrong. Test and validation labels are never changed here.</span></div>
+        <section class="card"><div class="card-heading"><div><h2>Your review queue <span class="count-pill" id="review-count">0</span></h2><p id="review-meta">Up to 100 comments per audit. Nothing is corrected automatically.</p></div><a class="text-button" href="/api/export/audit" download>Export audit ↓</a></div><div id="review-list"><div class="empty-small">Load your dataset and run a label audit to start reviewing.</div></div><div class="review-pagination hidden" id="review-pagination"><button class="secondary" id="review-more">Show more comments</button></div></section>
+      </section>
+      <footer>MOZHI <span>/</span> Tamil-English toxicity research <span class="footer-right">Made for a closer reading.</span></footer>
+    </div>
+  </main>
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

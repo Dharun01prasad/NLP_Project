@@ -1,0 +1,5 @@
+# Install requirements.txt first on Windows. Colab installs only the training subset.
+torch>=2.6,<3
+transformers==4.57.6
+sentencepiece>=0.2,<0.3
+safetensors>=0.5,<1

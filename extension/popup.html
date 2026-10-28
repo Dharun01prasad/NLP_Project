@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mozhi</title><link rel="stylesheet" href="popup.css"></head><body>
+<header><div class="brand"><span>ம</span><strong>mozhi<small>COMMENT INSIGHTS</small></strong></div><button id="open-lab">Open lab ↗</button></header>
+<main><div class="eyebrow">READ THE ROOM</div><h1>A closer look at<br>the conversation<span>.</span></h1><p class="intro">Tamil-English toxicity predictions from your local NLP model.</p>
+<div class="research">Research baseline · published labels unverified.<br>Scores express likelihood, not abuse severity.</div>
+<div class="video" id="video-title">Open a YouTube video and scroll to its comments.</div><button class="primary" id="analyze" disabled>Analyze loaded comments <span>↗</span></button>
+<p class="scope">Analyzes up to 500 comments already loaded on the page, including loaded replies. Scroll or expand replies to load more.</p>
+<div class="message hidden" id="message" role="status"></div>
+<section class="hidden" id="analysis"><div class="stats"><div><strong id="count">0</strong><span>ANALYZED</span></div><div><strong id="flagged">0%</strong><span>FLAGGED</span></div><div><strong id="average">0</strong><span>MEAN / 10</span></div></div><div class="results-head"><h2>Comment insights</h2><button id="export">Export ↓</button></div><div id="comments"></div><p class="scope">Results describe this sample. Near-threshold predictions need context. Model features are learned associations.</p></section>
+</main><footer><span id="backend">Connecting to backend…</span><span>LOCAL INFERENCE</span></footer><script src="popup.js"></script></body></html>

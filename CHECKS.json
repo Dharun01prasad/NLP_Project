@@ -1,0 +1,28 @@
+{
+  "python_checks": {
+    "passed": 8,
+    "command": "python -m pytest -q"
+  },
+  "extension_fixture_checks": {
+    "passed": 6,
+    "command": "node --test tests/extension.test.cjs"
+  },
+  "browser_checks": {
+    "passed": [
+      "desktop rendering",
+      "batch inference",
+      "result filters",
+      "CSV download",
+      "experiment report",
+      "dataset/review views",
+      "mobile no horizontal overflow",
+      "no JavaScript exceptions"
+    ],
+    "environment": "Headless Chromium 145 with Playwright; local API"
+  },
+  "live_youtube_verified": false,
+  "training_data": "Original checksum-verified DravidianCodeMix Tamil offensive-language train/dev/test splits",
+  "human_evaluation_completed": false,
+  "selected_model": "Word + character TF-IDF \u00b7 augmented",
+  "macro_f1_against_published_test_labels": 0.7408076043453402
+}

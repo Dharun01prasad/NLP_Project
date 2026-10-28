@@ -1,178 +1,172 @@
-# Mozhi — Tamil-English toxicity lab
+# Mozhi
 
-A runnable NLP project for direct classification of Tamil-English YouTube comments. It includes a trained research model, a local FastAPI application, a dataset importer, training experiments, a Cleanlab review queue, and a Manifest V3 Chrome extension. Inference uses TF-IDF and Logistic Regression. No generative LLM, translation API, or API key is used.
+**A local research app and Chrome extension for English, Tamil, and Thanglish comment analysis.** Mozhi predicts a broad **offensive-language** label for text and displays a probability-derived score. It includes a web workspace for dataset inspection and experiments, plus on-page indicators for comments currently loaded on YouTube watch pages.
 
-For the English/Tamil/Thanglish reliability upgrade, see **[ROBUSTNESS.md](ROBUSTNESS.md)**
-and **[the Colab training notebook](colab/Train_Mozhi.ipynb)**. This adds optional
-multilingual transformer training and offline inference, a Tamil tokenizer fix, and
-language/script diagnostics. The packaged TF-IDF checkpoint is unchanged; a full
-multilingual model must be trained and evaluated before claiming improved accuracy.
+Mozhi is a research prototype. Its `toxic` / `non_toxic` output is **not** a separate hate-speech category, a severity score, or a decision that should be used for automatic moderation. Predictions can be wrong, especially for code-mixed language and unfamiliar contexts.
 
-## Start on Windows
+## What you can do
 
-1. Install **Python 3.12** from https://www.python.org/downloads/ if needed, including the Python launcher.
-2. Extract this archive into a regular folder. Open that folder and double-click **`setup_windows.bat`**. The first installation needs internet access.
-3. Double-click **`start_windows.bat`**. Leave its terminal running.
-4. Open **http://127.0.0.1:8000** in Chrome.
-5. In **Comment analysis**, select **Load examples**, then **Analyze comments**. You can also paste your own comments, one per line.
+- Paste up to 500 comments into the web app, review per-comment predictions, filter results, and export a CSV.
+- Turn on the Chrome extension to see emoji and likelihood percentages beside rendered YouTube comments and replies. The popup also offers manual batch analysis and CSV export.
+- Download the original research corpus or import a labeled CSV/TSV, compare baseline models, inspect evaluation reports, and review suspected label errors with Cleanlab.
+- Train an optional multilingual transformer on a GPU and run it locally **where PyTorch is permitted**. The default app does not require PyTorch.
 
-The packaged model is already trained. You do not need to download the training corpus to analyze comments. Its predictions are a research starting point and can be wrong.
+## Tech stack
 
-On macOS/Linux, use Python 3.12 and run `bash start.sh`. Alternatively, use the commands below from the project root:
-
-```bash
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
-python -m pip install -r requirements.txt
-python run.py
-```
-
-If a local Python environment already exists but dependencies are missing, run the requirements installation again. All commands below assume that environment is activated.
-
-## Install the Chrome extension
-
-1. Start the Python backend as above.
-2. Open `chrome://extensions` in Chrome.
-3. Enable **Developer mode**.
-4. Select **Load unpacked** and choose this project's **`extension`** folder, which contains `manifest.json`.
-5. Open a YouTube video at a `/watch?v=...` URL. Scroll to the comments; expand replies if you want them included.
-6. Open the Mozhi popup and switch **Page indicators** ON. It defaults to OFF and remembers your choice locally.
-7. The popup's **Analyze loaded comments** button still provides the original manual results and CSV export.
-
-When ON, the extension adds an emoji and toxicity-likelihood percentage beside each rendered comment and reply. Expand an indicator to see its 0–10 likelihood score, model flag, and **Needs context** warning when applicable. The floating summary shows the analyzed count, flagged count and percentage, and average likelihood score. It updates as YouTube renders more comments. The extension waits about 1.4 seconds after page changes and sends at most 100 comments per request. The manual popup analysis covers up to 500 currently loaded comments in 100-comment batches.
-
-Only comments currently rendered by YouTube are analyzed; this is never a full-video census. The 0–10 value is predicted toxicity likelihood, not verified abuse severity. The extension runs on YouTube `/watch?v=...` pages. It does not run on Shorts, search, home or unrelated sites. YouTube may change its markup; extraction selectors are in `extension/content.js`.
-
-Switching OFF stops observation and backend requests and removes indicators and the summary from the current page. The popup shows ON or OFF status. If you navigate normally to another watch page and indicators do not appear, open the popup on that page once to grant active-tab access. The extension does not request broad YouTube host access.
-
-If the popup says **Backend unavailable**, start the local backend with `python run.py` and check `http://127.0.0.1:8000/api/status`. If it says **No trained model**, configure a trained model in the local backend and restart it. If no comments appear, scroll to the YouTube comments or expand replies; only rendered DOM comments are visible to the extension. Reload the unpacked extension in `chrome://extensions` after changing its files. Permissions are limited to `activeTab`, `scripting`, `storage` and the fixed local backend at `127.0.0.1:8000`. No API keys are used and comment text is not logged in production.
-
-## Training and data quality
-
-Open **Dataset studio → Load research dataset** to download the original DravidianCodeMix archive. The app checks its published MD5 checksum and reads the headerless, tab-separated `tamil_offensive_full_train/dev/test.csv` files. These split files are **text first, label second**. The archive's unsplit `tamil_offensive_full.csv` is **label first, text second** and is deliberately not used.
-
-The raw corpus and its review comments are not redistributed in this project archive; the app downloads data from the original source. The packaged model and aggregate report were produced from that source. Load the corpus and run an audit to generate your review queue.
-
-Automatic mapping is explicit:
-
-| Original label | Binary label |
+| Part | Technology |
 | --- | --- |
-| `Not_offensive` | 0 — non-toxic |
-| `Offensive_Untargetede` | 1 — toxic/offensive |
-| `Offensive_Targeted_Insult_Individual` | 1 |
-| `Offensive_Targeted_Insult_Group` | 1 |
-| `Offensive_Targeted_Insult_Other` | 1 |
-| `not-Tamil` | excluded |
+| Web frontend | HTML, CSS, vanilla JavaScript; no frontend build step |
+| Chrome extension | Manifest V3, popup, content script, service worker, `chrome.storage.local` |
+| Backend/API | Python 3.12, FastAPI, Pydantic, Uvicorn; served on `127.0.0.1:8000` |
+| Default model | scikit-learn word/character TF-IDF, class-weighted Logistic Regression, sigmoid calibration |
+| Optional GPU model | Fine-tuned MuRIL using PyTorch and Hugging Face Transformers; safetensors export |
+| Data and evaluation | pandas, NumPy, SciPy, scikit-learn, Cleanlab |
+| Database | **None.** Local CSV, JSON, and model files under `runtime/` |
 
-This operational definition covers offensive language broadly. It does not mean all flagged comments are identity-based hate speech. Collapsing categories does not repair incorrect original annotations.
+Inference runs on the local backend. There is no translation API, generative LLM, API key, or cloud inference call.
 
-Alternatively, import a UTF-8 CSV/TSV with `comment,label` headers and labels 0/1. Custom column names and an explicit JSON label mapping can be configured in the interface. An optional `split` column accepts train/dev/test; provide all three splits or omit the column for all rows. Use a reasonably sized dataset: at least 60 distinct examples per class is a practical minimum for this implementation, and more is preferable. Sentiment labels such as positive/negative are rejected unless you supply your own explicit mapping; they should not be used as toxicity labels.
+## Quick start on Windows (PowerShell)
 
-```csv
-comment,label
-"Indha video romba helpful, nandri",0
-"An example explicitly labeled abusive by your annotation rules",1
+Run these commands from the project folder. A batch file is **not** required.
+
+### 1. Install the baseline dependencies
+
+Install [Python 3.12](https://www.python.org/downloads/) if needed. Then:
+
+```powershell
+cd "E:\Coding\NLP_Project\mozhi"
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-That snippet illustrates the format, not a sufficient training dataset.
+If `.venv` already exists and works, you can skip the `py -3.12 -m venv .venv` line. If the `py` launcher is unavailable, use `python -m venv .venv` with a Python 3.12 installation.
 
-The importer removes empty/oversized text, exact normalized duplicates, and conflicting duplicate labels. Original test/dev copies take priority over training duplicates. Normalized groups collapse Latin repeated letters, punctuation, and spacing to reduce obvious variant leakage. This is a conservative heuristic; it does not detect all semantic duplicates. Grouping does not edit the text used by the classifier.
+### 2. Make sure a model is available
 
-## Run experiments
+- **Existing local project folder:** If `runtime\models\model.joblib` exists, the default baseline is ready. Skip to step 3.
+- **Fresh Git clone:** The trained weights are excluded from Git because model files can be large. Train the baseline once:
 
-Select **Experiments → Train & compare** after loading data. Three configurations are compared:
+```powershell
+.\.venv\Scripts\python.exe -m toxicity fetch
+.\.venv\Scripts\python.exe -m toxicity train
+```
 
-1. Word TF-IDF (unigrams/bigrams) + class-weighted Logistic Regression.
-2. Word + character TF-IDF (3–5-character fragments) + Logistic Regression.
-3. The combined model with deterministic spelling augmentation on a subset of training comments.
+The fetch step downloads the original DravidianCodeMix archive and checks its published checksum. Training saves `runtime\models\model.joblib`; it may take several minutes and needs no GPU. Alternatively, place a **trusted, compatible** baseline checkpoint at that path. Do not load untrusted `.joblib` files.
 
-The train/calibration/validation/test partition is frozen when data is imported. For original data, official splits are retained and overlapping groups are removed from lower-priority partitions. With unsplit imports, the split is approximately 60/20/20 by group. Development data is split into calibration and validation subsets.
+### 3. Start the app
 
-Only training rows fit the feature vocabulary and classifier. A sigmoid calibrator is fitted separately. Validation chooses a threshold, preferring precision >= 0.75 where possible, and then maximizing macro-F1. Validation macro-F1 selects the winning configuration. The selected model is chosen before test metrics are computed. This precision preference can reduce recall considerably; inspect both metrics rather than assuming it will catch all abuse. No final refit on test data is performed.
+```powershell
+.\.venv\Scripts\python.exe run.py
+```
 
-The report records macro-F1, precision, recall, false-positive rate, Brier score, ROC-AUC, average precision, confusion matrices, dataset fingerprint, split counts, and source. Synthetic repeated-letter and punctuation tests report prediction consistency. These variants inherit labels and have not been human-validated. Experiments use seed 42 and constrained numerical threads for repeatability. Reports from subsequent runs are retained in `runtime/reports/run_*.json` so before/after review results can be compared.
+Leave the terminal open. Open [the web app](http://127.0.0.1:8000) in Chrome. Open [the status endpoint](http://127.0.0.1:8000/api/status) to confirm `"model_ready": true` and check the active `"backend"`. Select **Load examples** and **Analyze comments** to try it. Press **Ctrl+C** in the terminal to stop the server.
 
-CLI equivalents:
+The optional `setup_windows.bat` and `start_windows.bat` scripts perform the equivalent setup/startup. PowerShell commands above are useful when `.bat` files cannot be run.
+
+### macOS/Linux
+
+From the repository root, use Python 3.12 to create a virtual environment, then run:
 
 ```bash
-python -m toxicity fetch
-python -m toxicity train
-python -m toxicity audit
-# For the two non-augmented configurations only:
-python -m toxicity train --no-augment
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m toxicity fetch   # fresh clone only
+.venv/bin/python -m toxicity train   # fresh clone only
+.venv/bin/python run.py
 ```
 
-Run CLI jobs while the server is stopped, then restart it to load the resulting model. The web interface handles model refresh automatically.
+Open `http://127.0.0.1:8000`. The `fetch` and `train` steps are unnecessary when a compatible checkpoint is already present.
 
-## Review suspicious labels
+## Install and use the Chrome extension
 
-1. Load the dataset, then select **Label review → Find suspicious labels**.
-2. Cleanlab receives probabilities from three group-separated out-of-fold fits on **training rows only**. The vectorizer is also refitted inside every fold.
-3. Review up to 100 ranked comments. Select **Keep** or **Change** based on your own Tamil understanding and agreed annotation rules.
-4. Every explicit decision is recorded with the original label and time. Test/dev labels are not exposed for correction here.
-5. Retrain after a review batch. The old model remains available, with a stale-data notice, until training succeeds.
+1. Start the Python backend and confirm that `/api/status` reports a ready model.
+2. In Chrome, open `chrome://extensions` and enable **Developer mode**.
+3. Click **Load unpacked** and select the repository's **`extension`** folder (the folder containing `manifest.json`). Pin Mozhi from Chrome's Extensions menu if desired.
+4. Open a YouTube video with a `/watch?v=...` URL. Scroll until comments load; expand replies if you want those analyzed.
+5. Open the Mozhi popup and turn **Page indicators** **ON**. The saved toggle defaults to OFF.
+6. Wait about 1–2 seconds for inline emoji/percent indicators and the page summary. Click an indicator for more detail. Use **Analyze loaded comments** in the popup for its manual result list and CSV export.
 
-These are suggested issues, not guaranteed annotation errors. Model disagreement alone does not justify changing a label. The system never automatically relabels your data. Loading a new corpus replaces the dataset and review queue; export anything you need first. Model-based auditing does not create a trustworthy test set: independently review an initial sample of about 200 comments before making real-world accuracy claims, and expand evaluation for the final report.
+The extension analyzes **only comments rendered on the current page**, not every comment on a video. It batches at most 100 comments per API request; popup analysis can cover up to 500 loaded comments. Switching OFF removes annotations and stops scanning. If indicators do not appear after navigating to another video, open the popup on that video once to grant active-tab access. Reload the unpacked extension in `chrome://extensions` after editing extension files.
 
-## Scores and explanations
+The extension has `activeTab`, `scripting`, `storage`, and fixed loopback host access to `http://127.0.0.1:8000/*`. It does not request broad YouTube host access.
 
-Each comment gets `10 × calibrated probability` as a **predicted offensive-language likelihood score**. It is **not abuse severity**. Calibration reflects the published dataset and may not transfer to a new video's language, topic, or class balance.
+## Models, scores, and current evidence
 
-The binary label uses the selected validation threshold. Predictions within 0.1 probability of this threshold are marked **Needs context**. This heuristic is not a statistical uncertainty interval and will miss confident errors. Feature chips show positive linear contributions from word/character features. They are learned associations, not verified toxic spans, causal explanations, or category labels.
+### Default baseline
 
-The comment-section summary shows the number analyzed, percentage flagged, mean likelihood, and near-threshold count. It describes the sample actually analyzed. It does not measure general sentiment or the entire video's toxicity severity.
+The default runtime loads `runtime/models/model.joblib`. The saved baseline combines word unigrams/bigrams and character 3–5-grams with Logistic Regression and separate sigmoid calibration. Its selected probability threshold is **0.60**. On the original, unverified DravidianCodeMix test labels, its macro-F1 is **74.08%**, toxic precision **78.47%**, and toxic recall **46.38%**. It missed **556 of 1,037** labeled offensive test comments. See [MODEL_CARD.md](MODEL_CARD.md) for the split, comparisons, and confusion matrix.
 
-## What is and is not established
+### Optional transformer experiment
 
-See **MODEL_CARD.md** for the measured baseline. It is not yet a robust final model. Important remaining work is independent Tamil-speaker evaluation, targeted training-label correction, performance across new videos and language varieties, and measured robustness to genuine slang and obfuscation. Standalone English performance is not established by training on code-mixed comments. Fine-grained abuse categories and severity prediction are not implemented.
+An exported fine-tuned `google/muril-base-cased` model and its report are stored separately under `runtime/gpu_run/models/transformer/`. Its **906 MB weights file is ignored by Git**, so a fresh clone does **not** contain a runnable transformer. The export's mixed-source test macro-F1 is **89.62%**, but its DravidianCodeMix source slice is **77.57%**; the overall score is strongly influenced by a different English tweet dataset. These are not directly comparable to the baseline's overall test score. The small hand-authored Thanglish diagnostic set also shows substantial remaining errors. See [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) and [ROBUSTNESS.md](ROBUSTNESS.md) before using those numbers in a presentation.
 
-The local API is available at `/docs`. It serves the web interface and extension using:
+To use the optional export on a machine that permits PyTorch, install `requirements-transformer.txt`, provide the **complete** export including `model.safetensors`, and point the app at its runtime, for example:
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /api/status` | Model, dataset, report, and active-job status |
-| `POST /api/analyze` | Batch inference, 1–500 comments |
-| `POST /api/datasets/research` | Fetch and validate the fixed source archive |
-| `POST /api/datasets/import` | Import labeled CSV/TSV |
-| `POST /api/train` | Start controlled training comparisons |
-| `POST /api/audit` | Start training-label audit |
-| `GET /api/jobs/{id}` | Poll job progress |
-| `GET /api/reviews` | Get ranked training review candidates |
-| `POST /api/reviews` | Save explicit label decisions |
-| `GET /api/export/{report,dataset,audit}` | Download local artifacts |
-
-Only one dataset/training/audit job runs at a time. The server binds to loopback and restricts cross-origin writes. This is a local academic tool, not a hosted multi-user service. Never load untrusted `.joblib` files: they can execute code. User imports accept text CSV/TSV only.
-
-## Checks
-
-```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-node tests/extension.test.cjs
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-transformer.txt
+$env:MOZHI_RUNTIME="E:\Coding\NLP_Project\mozhi\runtime\gpu_run"
+.\.venv\Scripts\python.exe run.py
 ```
 
-Tests cover parsing and label mapping, duplicate conflicts, group leakage, augmentation boundaries, training/calibration/inference, API validation, explicit review persistence, held-out protection, label-audit boundaries, and extension toggle, observer, batching, navigation, indicator, and backend-error behavior on fixtures. The included browser check covers the local web lab at desktop and mobile widths. Live YouTube behavior should also be checked in the installed Chrome extension because YouTube can change its DOM.
+Check `/api/status` for `"backend": "transformer"`. On this project's previously tested Windows setup, application control blocked `torch_python.dll`; training on a GPU elsewhere does not remove the local PyTorch inference requirement. The baseline works without Torch. The [Colab notebook](colab/Train_Mozhi.ipynb) and [ROBUSTNESS.md](ROBUSTNESS.md) describe training and export.
 
-## Project layout
+For either model, `score = 10 × predicted probability`. A flag means the probability meets the saved threshold; **Needs context** means near the threshold or truncated input. It is not a confidence guarantee. The models learn from labeled examples: there is no hardcoded list of offensive phrases. Repeating the same input with a fixed model normally produces the same prediction.
+
+## Dataset, training, and review workflow
+
+The web app has four sections: **Comment analysis**, **Dataset studio**, **Experiments**, and **Label review**.
+
+The baseline research importer reads the official DravidianCodeMix Tamil offensive-language train/dev/test splits. `Not_offensive` maps to `0`; offensive categories map to `1`; `not-Tamil` rows are excluded. For your own data, import UTF-8 CSV/TSV with `comment,label` columns and labels `0`/`1`; optional `split` values are `train`, `dev`, and `test`. Custom column and label mappings are available in the UI. The expanded GPU preparation path also uses the Davidson English hate/offensive tweet dataset, with its original classes mapped explicitly. Sentiment labels are not treated as toxicity labels.
+
+Baseline experiments compare word-only, word+character, and word+character with training-only spelling augmentation. Training, calibration, validation, and test data remain separate. Validation selects the model and threshold; the held-out test measures the selected result. The **Label review** section uses Cleanlab to rank possible training-label issues; only an explicit human decision changes a label, and held-out labels are protected. Original corpus labels have not been independently verified here.
+
+The optional transformer training workflow is in `colab/Train_Mozhi.ipynb`. When prompted, upload `colab/mozhi_colab.zip`; the notebook handles extraction. Training evaluates the export and downloads a model archive. The data source and results are documented in [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md).
+
+## API and project layout
+
+The local API docs are at `http://127.0.0.1:8000/docs`. Key endpoints are `GET /api/status`, `POST /api/analyze`, `POST /api/datasets/research`, `POST /api/datasets/import`, `POST /api/train`, `POST /api/audit`, `GET /api/reviews`, `POST /api/reviews`, and `GET /api/export/{kind}`. An analysis request accepts 1–500 comments, up to 10,000 characters each and 1,000,000 characters total. The backend binds to loopback and is designed for local use.
 
 ```text
 mozhi/
-  run.py                  Local server entry point
-  toxicity/               Data parsing, model training, auditing, API
-  web/                    Local research interface
-  extension/              Chrome Manifest V3 extension
-  tests/                  Pipeline, API, and extension tests
-  runtime/models/         Trained model artifact
-  runtime/reports/        Experimental reports and review queue
-  runtime/data/           Created when source data is downloaded/imported
+  run.py                     Local server entry point
+  toxicity/                  Data preparation, training, inference, API, audit
+  web/                       Research workspace frontend
+  extension/                 Chrome Manifest V3 extension
+  colab/                     Optional GPU training notebook and local upload bundle
+  tests/                     Python, extension, and browser checks
+  runtime/models/            Default baseline checkpoint (local, Git-ignored)
+  runtime/gpu_run/            Separate transformer export/report (weights Git-ignored)
+  PROJECT_CONTEXT.md         Detailed architecture, metrics, limitations, slide plan
+  MODEL_CARD.md              Baseline evaluation
+  ROBUSTNESS.md              Failure analysis and multilingual training path
 ```
 
-## Sources
+Generated datasets, checkpoints, and large weights are ignored by Git. A fresh clone needs model preparation before it can analyze comments.
 
-- DravidianCodeMix, Chakravarthi et al.: https://zenodo.org/records/4750858; paper https://doi.org/10.1007/s10579-022-09583-7. Cite the original authors when using the corpus. Source archive checksum: `7850be52919a387f5b36c7a09b05ad87` (MD5, published by Zenodo).
-- Character TF-IDF/linear classification for Dravidian comments: https://aclanthology.org/2021.dravidianlangtech-1.37/ and https://aclanthology.org/2021.dravidianlangtech-1.5/.
-- Cleanlab: https://docs.cleanlab.ai/; used for label-issue ranking with out-of-fold predictions.
-- Chrome content scripts: https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts.
+## Tests
 
-See dependency licenses in their original packages. Source corpus annotations and their original classification scheme remain attributable to their authors.
+Install test dependencies if needed, then run from the project root:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest -q
+node --test tests\extension.test.cjs
+```
+
+At the last recorded run, **15 Python tests and 16 extension tests passed**. Node.js is needed for the extension tests, not for running the app. The tests cover data and split rules, training/API behavior, review safeguards, extension toggle/observer/batching/navigation, and error handling. Live YouTube behavior should also be checked in Chrome because YouTube can change its page markup.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| `Backend unavailable` in the popup | Start `run.py` and open `/api/status` on `127.0.0.1:8000`. |
+| `No trained model` | A fresh clone has no weights. Run the baseline `fetch` and `train` commands above, then restart the server. |
+| No YouTube indicators | Use a `/watch?v=...` page, scroll to rendered comments, turn the popup ON, and reopen it after a hard navigation if needed. |
+| Port 8000 is already in use | Stop the earlier Mozhi terminal with **Ctrl+C** before starting another server. |
+| Torch DLL blocked on Windows | Use the baseline; the optional transformer needs an environment where PyTorch can load under local policy. |
+
+## References and scope
+
+The original YouTube corpus is [DravidianCodeMix on Zenodo](https://zenodo.org/records/4750858); cite its authors for the data. The expanded experiment also uses the Davidson English tweet dataset, described with provenance and hashes in `training_data.info.json` when locally prepared. See [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) for the full project narrative, exact metric scopes, architecture, and presentation outline.
+
+The published labels, source-domain calibration, and small diagnostic examples do not establish real-world accuracy. Evaluate on independently reviewed English, Tamil, and Thanglish comments from new videos before claiming reliable moderation performance.

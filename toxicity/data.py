@@ -84,7 +84,7 @@ def binary_label(value, custom: dict | None = None) -> int | None:
         return 1
     if key.startswith("offensiveuntarget") or key.startswith("offensivetargetedinsult"):
         return 1
-    if key in {"nottamil", "notintendedlanguage", "otherlanguage"}:
+    if key in {"nottamil", "notmalayalam", "notkannada", "notintendedlanguage", "otherlanguage"}:
         return None
     raise ValueError(f"Unknown label {value!r}. Expected 0/1 or explicit offensive-language labels. Sentiment labels are not toxicity labels.")
 

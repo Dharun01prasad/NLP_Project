@@ -30,7 +30,7 @@ async function attach(tab) {
   await chrome.tabs.sendMessage(tabId, { type: 'MOZHI_ENABLE' });
   const status = await background('MOZHI_STATUS');
   modelReady = !!status.model_ready;
-  $('backend').textContent = modelReady ? '● Local model connected' : '○ No trained model';
+  $('backend').textContent = modelReady ? 'Local model connected' : 'No trained model';
   if (!modelReady) message('No trained model is available. Start the backend with a trained model.', true);
   else message('Mozhi is ON. Newly rendered comments will be analyzed.');
   toggleDisplay();

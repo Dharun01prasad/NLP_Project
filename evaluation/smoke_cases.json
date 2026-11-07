@@ -1,5 +1,9 @@
 [
   {"comment":"Hi how are you", "label":0, "language":"english", "category":"greeting"},
+  {"comment":"Hardik Pandya FINALLY A CRICKETER", "label":0, "language":"english", "category":"sports_praise"},
+  {"comment":"Only here for Hardik Pandya", "label":0, "language":"english", "category":"sports_support"},
+  {"comment":"Who is waiting for Hardik Pandya from India", "label":0, "language":"english", "category":"sports_question"},
+  {"comment":"Haaland is good person", "label":0, "language":"english", "category":"sports_praise"},
   {"comment":"Hello, how is your day going?", "label":0, "language":"english", "category":"greeting"},
   {"comment":"Thank you for your help", "label":0, "language":"english", "category":"thanks"},
   {"comment":"I disagree with your opinion", "label":0, "language":"english", "category":"disagreement"},

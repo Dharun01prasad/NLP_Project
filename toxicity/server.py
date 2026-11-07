@@ -23,6 +23,7 @@ from .audit import audit_labels
 from .data import fetch_research_dataset, read_upload
 from .model import partition, predict, train_experiment
 from .inference import load_bundle
+from .language import detect as detect_language, load as load_language
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -72,6 +73,7 @@ class Store:
         self.jobs = {}
         self.active = None
         self.bundle = load_bundle(self.path / "models", os.environ.get("MOZHI_MODEL_BACKEND", "auto"))
+        self.language_model = load_language(self.path / "models/language.joblib")
 
     def read_json(self, name, fallback=None):
         path = self.path / name
@@ -164,6 +166,7 @@ def create_app(runtime=None):
         info = store.read_json("data/info.json")
         report = store.bundle["report"] if store.bundle else None
         return {"model_ready": store.bundle is not None, "dataset": info, "report": report,
+                "language_model_ready": store.language_model is not None,
                 "backend": store.bundle.get("backend", "baseline") if store.bundle else None,
                 "active_job": store.jobs.get(store.active), "human_validated": False,
                 "model_stale": bool(info and report and info.get("revision") != report["dataset"].get("revision"))}
@@ -262,6 +265,8 @@ def create_app(runtime=None):
             raise HTTPException(503, "No trained model. Load a labeled dataset and run training in the lab.")
         with store.lock, threadpool_limits(limits=2):
             rows = predict(bundle, payload.comments)
+            for row in rows:
+                row.update(detect_language(row["comment"], store.language_model))
         toxic = sum(row["label"] == "toxic" for row in rows)
         return {"results": rows, "summary": {"analyzed": len(rows), "flagged": toxic,
                 "flagged_percent": round(100 * toxic / len(rows), 1),

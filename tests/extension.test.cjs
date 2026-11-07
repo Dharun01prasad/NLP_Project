@@ -181,13 +181,15 @@ test('all five emoji score ranges, accessibility, percentage and comment matchin
   const scores = [1.9, 2, 4, 6, 8];
   const fixture = contentFixture({ enabled: true, texts: scores.map((_, i) => `text ${i}`),
     reply: async request => ({ ok: true, data: { results: request.comments.map((comment, i) =>
-      ({ comment, label: 'non_toxic', score: scores[i], probability: scores[i] / 10, uncertain: i === 2 })) } }) });
+      ({ comment, label: 'non_toxic', language_label: 'Romanized Kannada', score: scores[i], probability: scores[i] / 10, uncertain: i === 2 })) } }) });
   await fixture.settled(); await fixture.tick();
   const icons = ['😊', '🙂', '😐', '😠', '🤬'];
   fixture.elements.forEach((comment, i) => {
     const badge = comment.host.shadowRoot.children[1].children[0];
     assert.ok(badge.textContent.startsWith(icons[i]));
     assert.match(badge.title, /Toxicity likelihood/);
+    assert.doesNotMatch(badge.title, /Romanized Kannada/);
+    assert.doesNotMatch(badge.textContent, /Romanized Kannada/);
     assert.match(badge.attributes['aria-label'], /out of 10/);
     assert.ok(badge.textContent.includes(`${Math.round(scores[i] * 10)}%`));
     if (i === 2) assert.equal(badge.children[0].textContent, 'Needs context');

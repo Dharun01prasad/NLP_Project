@@ -19,6 +19,17 @@ from .inference import transformer_text
 from .model import SEED, partition, pick_threshold
 
 
+def source_label_weights(frame: pd.DataFrame, power: float = 0.5) -> np.ndarray:
+    """Temper source/class imbalance without repeating tiny strata excessively."""
+    if not 0 <= power <= 1:
+        raise ValueError("Sampling power must be between 0 and 1.")
+    strata = frame.label.astype(str)
+    if "source" in frame:
+        strata = frame.source.astype(str) + ":" + strata
+    counts = strata.value_counts()
+    return strata.map(counts).to_numpy(dtype=float) ** -power
+
+
 def fit_temperature(margins, labels):
     margins, labels = np.asarray(margins), np.asarray(labels)
     def loss(temperature):
@@ -81,12 +92,9 @@ def train(data_path, output, base_model="google/muril-base-cased", epochs=3,
         return tokenizer.pad(rows, padding=True, return_tensors="pt")
 
     train_frame = parts["train"]
-    # Equal source/class sampling prevents the English source's ~83% offensive prior
-    # from dominating training. Calibration uses the untouched calibration distribution.
-    strata = train_frame.label.astype(str)
-    if "source" in train_frame:
-        strata = train_frame.source.astype(str) + ":" + strata
-    weights = (1 / strata.map(strata.value_counts())).to_numpy()
+    # Square-root weighting reduces imbalance without drawing tiny source/class
+    # groups as often as the much larger groups. Dev/test remain untouched.
+    weights = source_label_weights(train_frame)
     sampler = WeightedRandomSampler(torch.as_tensor(weights, dtype=torch.double), len(weights), replacement=True)
     train_loader = DataLoader(encoded_parts["train"], batch_size=batch_size, sampler=sampler, collate_fn=collate)
 
@@ -167,7 +175,7 @@ def train(data_path, output, base_model="google/muril-base-cased", epochs=3,
               "human_validated": False, "score_meaning": "Predicted offensive-language likelihood; not severity or a hate-specific label",
               "training": {"epochs": epochs, "batch_size": batch_size, "accumulation": accumulation,
                            "learning_rate": learning_rate, "seed": SEED, "device": device,
-                           "sampling": "Equal source/class strata with replacement; training only"},
+                           "sampling": "Inverse-square-root source/class weights with replacement; training only"},
               "truncated_rows": truncation, "epochs": history,
               "validation_slices": validation, "test_slices": test,
               "experiments": [{"name": name, "kind": "transformer", "augmented": False,

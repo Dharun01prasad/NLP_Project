@@ -1,5 +1,44 @@
 # Mozhi
 
+## Optional V2: Romanized Hindi, Malayalam, and Kannada
+
+V2 is a separate **candidate**. The current Tamil/English MVP1 model stays active until you explicitly start the backend with the V2 runtime. The extension and web app display an estimated language beside each toxicity score; with MVP1, Latin-script comments show **Language unclear** until a language model has been trained.
+
+Language identification uses the trained character-ngram classifier plus [wordfreq](https://pypi.org/project/wordfreq/) evidence for clear English sentences. This helps with English sports comments that were mislabeled as Tamil by corpus-level language tags. The lexicon does not change toxicity predictions; mixed-language comments can still be uncertain. After updating the code, run `python -m pip install -r requirements.txt` and restart the backend. The saved V2 language model does not need retraining for this inference fix.
+
+### Next toxicity candidate
+
+The V2 held-out report shows notably higher false-positive rates for the Hinglish and Romanized Tamil slices than the overall metric suggests. The next training run uses gentler source/class sampling; it does **not** overwrite the current checkpoint. Train and evaluate on your GPU:
+
+```powershell
+python -m tools.train_v2 --output runtime/v3_candidate --threshold-policy precision_first
+python -m toxicity.evaluation --runtime runtime/v3_candidate --backend transformer --training-data runtime/data/v2/training.csv --output runtime/v3_candidate/reports/diagnostics.json
+```
+
+Compare `runtime/v3_candidate/models/transformer/report.json` with the V2 report by source and language: false-positive rate, recall, and macro F1 all matter. The diagnostic file includes ordinary sports comments from actual usage. It is a small development check, not a substitute for a human-labeled held-out sample of real YouTube comments. Keep V2 active unless V3 improves the errors you care about without unacceptable new misses. Training is never triggered by the app automatically.
+
+From PowerShell in this folder, using a GPU-capable Python environment:
+
+```powershell
+python -m pip install -r requirements.txt -r requirements-transformer.txt
+python -m tools.fetch_v2_data
+python -m toxicity.prepare_v2
+python -m tools.train_v2 --epochs 3 --batch-size 8 --accumulation 4
+```
+
+`prepare_v2` expects the existing `training_data.csv` from MVP1. On a fresh checkout, first run `python -m toxicity.prepare --data-dir ..\DravidianCodeMix --output training_data.csv` after obtaining that source directory. All V2 outputs go under Git ignored `runtime/data/v2` and `runtime/v2_candidate`. The training command **requires CUDA** and does not fall back silently to CPU. If your Windows policy blocks PyTorch DLLs, run training in a permitted GPU environment, then copy the complete `runtime/v2_candidate` folder back to this project.
+
+Review `runtime/v2_candidate/v2_summary.json`, particularly held-out macro F1, false-positive rate, and results by language/source. Source and test distributions differ, so check common benign phrases and offensive examples in each language yourself. If the candidate is acceptable, start it in a new PowerShell session:
+
+```powershell
+$env:MOZHI_RUNTIME = (Resolve-Path .\runtime\v2_candidate).Path
+python run.py
+```
+
+Reload the extension in `chrome://extensions` to pick up the UI changes, then reload the YouTube page. To return to MVP1, stop the server, remove `MOZHI_RUNTIME` from that shell (`Remove-Item Env:MOZHI_RUNTIME`), and restart `python run.py`.
+
+The V2 sources are the [official DravidianCodeMix offensive-language splits](https://zenodo.org/records/4750858) for Tamil, Malayalam, and Kannada and the public [TextDetox multilingual toxicity Hinglish split](https://huggingface.co/datasets/textdetox/multilingual_toxicity_dataset). The downloaded archive checksum is verified. The TextDetox card does not identify the original source of its Hinglish subset; its labels need manual review. The corpora use different definitions of offensive or toxic language. The language model is trained on **corpus labels as proxies**, so code mixed and short text can show “Language unclear” or be wrong. Native script detection is based on Unicode ranges. These data do not establish identity-directed hate-speech performance.
+
 **A local research app and Chrome extension for English, Tamil, and Thanglish comment analysis.** Mozhi predicts a broad **offensive-language** label for text and displays a probability-derived score. It includes a web workspace for dataset inspection and experiments, plus on-page indicators for comments currently loaded on YouTube watch pages.
 
 Mozhi is a research prototype. Its `toxic` / `non_toxic` output is **not** a separate hate-speech category, a severity score, or a decision that should be used for automatic moderation. Predictions can be wrong, especially for code-mixed language and unfamiliar contexts.

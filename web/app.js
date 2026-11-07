@@ -85,7 +85,9 @@ async function refresh() {
   state.status = data;
   $('#connection-text').textContent = 'Local backend connected';
   $('#connection-dot').classList.remove('offline');
-  $('#model-pill').textContent = data.model_ready ? `●  ${data.backend === 'transformer' ? 'Multilingual transformer' : 'Research baseline'} ready` : '○  Train a model to begin';
+  $('#model-pill').textContent = data.model_ready
+    ? `${data.backend === 'transformer' ? 'Multilingual transformer' : 'Research baseline'} ready`
+    : 'Train a model to begin';
   $('#analyze-button').disabled = !data.model_ready;
   renderDataset(data.dataset);
   renderExperiments(data.report, data.model_stale);

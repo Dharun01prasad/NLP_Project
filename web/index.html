@@ -15,7 +15,6 @@
       <button class="nav-item" data-page="experiments"><span class="nav-icon">⌁</span> Experiments</button>
       <button class="nav-item" data-page="review"><span class="nav-icon">✓</span> Label review <span id="queue-badge" class="nav-badge">0</span></button>
     </nav>
-    <div class="sidebar-project"><span class="eyebrow">THE PROJECT</span><h3>Small details.<br>Better understanding.</h3><p>Direct Tanglish classification.<br>Built with traditional NLP.</p><span class="project-pill">TF-IDF + Logistic Regression</span></div>
     <div class="sidebar-footer"><span class="connection-dot" id="connection-dot"></span><span id="connection-text">Connecting to local backend</span><span class="version">v1.0</span></div>
   </aside>
   <main>
@@ -24,7 +23,7 @@
       <div id="error-banner" class="notice error hidden" role="alert"></div>
       <div id="job-banner" class="notice job hidden" role="status"><span class="spinner"></span><span id="job-text"></span></div>
       <section id="page-analyze" class="page">
-        <div class="page-heading"><div><div class="eyebrow green">WORDS MATTER. CONTEXT MATTERS MORE.</div><h1>Understand the conversation<span class="green">.</span></h1><p class="subtitle">A closer look at toxicity in Tamil-English comment sections.</p></div><span id="model-pill" class="status-pill">Checking model…</span></div>
+        <div class="page-heading"><div><h1>Analyze comments</h1><p class="subtitle">Toxicity scores for each comment.</p></div><span id="model-pill" class="status-pill">Checking model…</span></div>
         <div class="notice research"><span class="notice-icon">i</span><span><strong>Research baseline.</strong> Published training labels are unverified. Scores estimate offensive-language likelihood; human judgment still matters.</span></div>
         <div class="stats-grid">
           <div class="stat"><div class="stat-label">COMMENTS ANALYZED <span>↗</span></div><div class="stat-value" id="stat-count">—</div><div class="stat-note">In this analyzed sample</div></div>
@@ -33,17 +32,17 @@
           <div class="stat"><div class="stat-label">NEEDS CONTEXT <span class="purple">◇</span></div><div class="stat-value" id="stat-uncertain">—</div><div class="stat-note">Predictions near the threshold</div></div>
         </div>
         <div class="analysis-grid">
-          <section class="card input-card"><div class="card-heading"><div><h2>Add your comments</h2><p>One comment per line. Up to 500 at a time.</p></div><span class="mini-icon">↙</span></div>
-            <label class="field-label" for="comments">COMMENT TEXT <span>Tamil · Tanglish · English</span></label>
+          <section class="card input-card"><div class="card-heading"><div><h2>Add your comments</h2><p>One comment per line. Up to 500 at a time.</p></div></div>
+            <label class="field-label" for="comments">COMMENT TEXT <span>English · Tamil · Hindi · Malayalam · Kannada</span></label>
             <textarea id="comments" spellcheck="false" placeholder="Indha video romba helpful ah irukku!&#10;The explanation could have been better.&#10;Add comments to explore the model’s predictions…"></textarea>
             <div class="input-meta"><span id="input-count">0 comments</span><button id="clear-comments" class="text-button">Clear</button></div>
-            <div class="sample-row"><span>Try a starting point</span><button id="load-examples" class="sample-chip">Load examples <span>↗</span></button></div>
+            <div class="sample-row"><button id="load-examples" class="sample-chip">Load examples <span>↗</span></button></div>
             <button id="analyze-button" class="primary wide">Analyze comments <span>↗</span></button>
             <p class="privacy-note"><span>⌂</span> Classification runs on your local Python backend. No comments are sent to an external API.</p>
           </section>
-          <section class="card results-card"><div class="card-heading"><div><h2>Comment insights <span id="results-count" class="count-pill">0</span></h2><p>Predictions, with room for context.</p></div><button id="export-results" class="icon-button" title="Export predictions as CSV" disabled>↓ <span>Export</span></button></div>
+          <section class="card results-card"><div class="card-heading"><div><h2>Comment insights <span id="results-count" class="count-pill">0</span></h2><p>Toxicity predictions, with room for context.</p></div><button id="export-results" class="icon-button" title="Export predictions as CSV" disabled>↓ <span>Export</span></button></div>
             <div class="results-toolbar"><div class="segmented" aria-label="Result filters"><button class="active" data-filter="all">All comments</button><button data-filter="toxic">Flagged</button><button data-filter="uncertain">Needs context</button></div><span class="muted" id="threshold-note"></span></div>
-            <div id="results" aria-live="polite"><div class="empty-state"><div class="empty-graphic"><span>“</span><i></i><b></b></div><h3>A little clarity starts here.</h3><p>Add a few comments and run an analysis.<br>Your results will appear in this space.</p><div class="language-pills"><span>தமிழ்</span><span>Tanglish</span><span>English</span></div></div></div>
+            <div id="results" aria-live="polite"><div class="empty-state"><h3>A little clarity starts here.</h3><p>Add a few comments and run an analysis.<br>Your results will appear in this space.</p></div></div>
           </section>
         </div>
         <div class="bottom-note"><span>↳</span> A flag is a model prediction. Slang, sarcasm, quoted abuse, and missing context can lead to mistakes.</div>

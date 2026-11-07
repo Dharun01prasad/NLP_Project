@@ -2,6 +2,7 @@
 __pycache__/
 .pytest_cache/
 runtime/data/
+runtime/v*_candidate/
 runtime/models/*.joblib
 runtime/reports/
 *.log
